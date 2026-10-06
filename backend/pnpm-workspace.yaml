@@ -1,0 +1,3 @@
+# Copy dependencies instead of linking them so installation also works on exFAT.
+nodeLinker: hoisted
+packageImportMethod: copy
