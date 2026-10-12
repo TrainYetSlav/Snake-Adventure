@@ -1,6 +1,12 @@
 # Snake Adventure — Backend
 
-Backend Node.js + Express cho Snake Adventure. Phạm vi hiện tại chỉ gồm API, nghiệp vụ và tài liệu tích hợp. Không có frontend, HTML, CSS, game engine phía trình duyệt, SQL, schema, migration hay kết nối database.
+Backend Node.js + Express cho Snake Adventure. Phần `backend` gồm API, nghiệp vụ và tài liệu tích hợp, không có SQL, schema, migration hay kết nối database. Có thêm demo Classic riêng trong `demo/classic` theo yêu cầu thử bản đồ; phần frontend chính do FE phụ trách.
+
+## Demo Classic với tường bao
+
+Mở `demo/classic/index.html` bằng trình duyệt để chơi thử, hoặc chạy `node demo/classic/server.mjs` từ thư mục gốc rồi truy cập `http://127.0.0.1:4173`. Xem [hướng dẫn demo và cấu trúc dành cho FE](demo/classic/README.md).
+
+Demo vẽ bản đồ bằng Canvas, có tường bao bốn cạnh, rắn, mồi, tăng trưởng, va chạm, tạm dừng và chơi lại. Chỉ đếm số mồi đã ăn, chưa gán hệ số điểm hoặc lưu thành tích. Các file backend và cấu hình điểm giữ nguyên.
 
 ## Trạng thái hiện tại
 

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Bản demo Classic của Snake Adventure với tường bao quanh.">
+    <title>Snake Adventure — Classic Demo</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="./engine.js" defer></script>
+    <script src="./game.js" defer></script>
+  </head>
+  <body>
+    <main class="demo">
+      <header class="header">
+        <div>
+          <p class="eyebrow"><span class="status-dot"></span> SNAKE ADVENTURE / DEMO</p>
+          <h1>Classic<span class="title-dot">.</span></h1>
+          <p class="subtitle">Ăn mồi, dài thêm. Cẩn thận với tường.</p>
+        </div>
+        <span class="mode-tag">MAP 01 · TƯỜNG BAO</span>
+      </header>
+
+      <div class="layout">
+        <section class="arena" aria-label="Bàn chơi Classic">
+          <div class="arena-bar">
+            <span><span class="status-dot"></span> <span id="status">Sẵn sàng</span></span>
+            <span>24 × 24 ô</span>
+          </div>
+          <div class="board-wrapper">
+            <canvas id="board" width="576" height="576" tabindex="0"
+              aria-label="Bản đồ rắn săn mồi. Dùng phím mũi tên hoặc WASD để điều khiển.">
+              Trình duyệt cần hỗ trợ Canvas để chơi demo này.
+            </canvas>
+            <div class="overlay" id="overlay">
+              <span class="overlay-label" id="overlay-label">CLASSIC MODE</span>
+              <h2 id="overlay-title">Sẵn sàng săn mồi?</h2>
+              <p id="overlay-text">Điều khiển rắn trong sân. Đụng tường hoặc thân rắn sẽ kết thúc lượt chơi.</p>
+              <button class="primary" id="overlay-action" type="button">Bắt đầu chơi <span aria-hidden="true">→</span></button>
+            </div>
+          </div>
+          <div class="arena-footer"><span class="key">↑ ↓ ← →</span> hoặc <span class="key">W A S D</span><span class="footer-spacer"></span><span class="key">Space</span> tạm dừng</div>
+        </section>
+
+        <aside class="sidebar">
+          <section class="stats" aria-label="Thông tin lượt chơi">
+            <p class="section-label">LƯỢT CHƠI HIỆN TẠI</p>
+            <div class="food-stat"><span>Mồi đã ăn</span><strong id="food-count">0</strong></div>
+            <div class="stat-row"><span>Chiều dài rắn</span><strong id="length">3</strong></div>
+            <div class="stat-row"><span>Tốc độ</span><strong>8 ô / giây</strong></div>
+          </section>
+
+          <section class="controls" aria-label="Điều khiển">
+            <button class="secondary" id="pause" type="button" disabled>Tạm dừng</button>
+            <button class="secondary" id="restart" type="button">Chơi lại</button>
+            <div class="direction-pad" aria-label="Các nút đổi hướng">
+              <button type="button" data-direction="up" aria-label="Đi lên">↑</button>
+              <button type="button" data-direction="left" aria-label="Sang trái">←</button>
+              <button type="button" data-direction="down" aria-label="Đi xuống">↓</button>
+              <button type="button" data-direction="right" aria-label="Sang phải">→</button>
+            </div>
+          </section>
+
+          <section class="legend" aria-label="Chú thích bản đồ">
+            <p class="section-label">TRÊN BẢN ĐỒ</p>
+            <p><span class="swatch snake"></span>Rắn của bạn</p>
+            <p><span class="swatch food"></span>Mồi · ăn để dài thêm</p>
+            <p><span class="swatch wall"></span>Tường · chạm là thua</p>
+          </section>
+          <p class="demo-note">Bản demo độc lập để thử bản đồ và luật Classic. Chưa tính điểm hoặc lưu thành tích.</p>
+          <p id="announcement" class="sr-only" aria-live="polite"></p>
+        </aside>
+      </div>
+      <footer class="page-footer"><span>CLASSIC DEMO</span><span>Vẽ bằng Canvas · chạy trực tiếp trên trình duyệt</span></footer>
+    </main>
+  </body>
+</html>
