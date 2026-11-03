@@ -23,6 +23,8 @@
     turningRight: [new Image(), new Image()],
     tail: new Image(),
     food: new Image(),
+    frog: new Image(),
+    mouse: new Image(),
   };
 
   assets.head[0].src = 'assets/Head1.png';
@@ -35,6 +37,8 @@
   assets.turningRight[1].src = 'assets/TurningRight2.png';
   assets.tail.src = 'assets/Tail1.png';
   assets.food.src = 'assets/food.png';
+  assets.frog.src = 'assets/Frog.png'; 
+  assets.mouse.src = 'assets/Mouse.png'; 
 
   let animFrame = 0;
 
@@ -143,6 +147,21 @@ function getSegmentAssetAndAngle(snake, index, direction) {
     }
   }
 
+  function ensureSnakeLength(targetLength = 7) {
+    if (!game.snake || game.snake.length >= targetLength) return;
+    while (game.snake.length < targetLength) {
+      const tail = game.snake[game.snake.length - 1];
+      const beforeTail = game.snake[game.snake.length - 2] || tail;
+      const dx = tail.x - beforeTail.x;
+      const dy = tail.y - beforeTail.y;
+      
+      const newX = tail.x + (dx !== 0 ? Math.sign(dx) : 1);
+      const newY = tail.y + (dy !== 0 ? Math.sign(dy) : 0);
+      
+      game.snake.push({ x: newX, y: newY });
+    }
+  }
+
   function draw() {
     context.fillStyle = '#1b2a1f';
     context.fillRect(0, 0, board.width, board.height);
@@ -195,6 +214,7 @@ function getSegmentAssetAndAngle(snake, index, direction) {
     });
   }
 
+  const preyPrevMap = new WeakMap();
   function drawHuntActors() {
     if (game.portal) {
       const x = game.portal.x * cellSize;
@@ -204,26 +224,43 @@ function getSegmentAssetAndAngle(snake, index, direction) {
       context.fillStyle = '#e6dcff';
       context.fillRect(x + 11, y + 8, 3, 8);
     }
+
     for (const prey of game.prey) {
-      const x = (prey.x + .5) * cellSize;
-      const y = (prey.y + .5) * cellSize;
-      const definition = game.catalog.get(prey.type);
-      context.fillStyle = definition.color ?? '#efb88c';
-      context.beginPath();
-      if (prey.type === 'bird') {
-        context.moveTo(x - 9, y - 6); context.lineTo(x, y - 1); context.lineTo(x + 9, y - 6);
-        context.lineTo(x + 5, y + 4); context.lineTo(x, y + 7); context.lineTo(x - 5, y + 4);
-      } else {
-        context.ellipse(x, y + 1, 7, 6, 0, 0, Math.PI * 2);
+      const x = (prey.x + 0.5) * cellSize;
+      const y = (prey.y + 0.5) * cellSize;
+
+      // Calculate direction of movement for rotation
+      let prev = preyPrevMap.get(prey);
+      let dx = 0, dy = 0;
+      if (prev) {
+        dx = prey.x - prev.x;
+        dy = prey.y - prev.y;
       }
-      context.fill();
-      for (const side of [-1, 1]) {
-        context.fillStyle = definition.color ?? '#efb88c';
+
+      let angle = prev?.angle ?? 0;
+      if (dx === 0 && dy < 0) angle = 0;                 // Going Up: No rotation
+      else if (dx > 0 && dy === 0) angle = Math.PI / 2;  // Going Right: 90 deg clockwise
+      else if (dx === 0 && dy > 0) angle = Math.PI;      // Going Down: 180 deg
+      else if (dx < 0 && dy === 0) angle = -Math.PI / 2; // Going Left: 90 deg to the left
+
+      preyPrevMap.set(prey, { x: prey.x, y: prey.y, angle });
+
+      // Match prey type to your custom assets
+      const assetKey = prey.type === 'frog' ? 'frog' : prey.type === 'mouse' ? 'mouse' : null;
+      const preyImg = assetKey ? assets[assetKey] : null;
+
+      if (preyImg && preyImg.complete && preyImg.naturalWidth !== 0) {
+        context.save();
+        context.translate(x, y);
+        context.rotate(angle);
+        context.drawImage(preyImg, -cellSize / 2, -cellSize / 2, cellSize, cellSize);
+        context.restore();
+      } else {
+        // Fallback placeholder if images are still loading
+        context.fillStyle = '#efb88c';
         context.beginPath();
-        context.arc(x + side * 5, y - 4, prey.type === 'frog' ? 4 : 3, 0, Math.PI * 2);
+        context.ellipse(x, y + 1, 7, 6, 0, 0, Math.PI * 2);
         context.fill();
-        context.fillStyle = '#19251b';
-        context.beginPath(); context.arc(x + side * 3, y - 2, 1.5, 0, Math.PI * 2); context.fill();
       }
     }
   }
@@ -345,6 +382,11 @@ function getSegmentAssetAndAngle(snake, index, direction) {
     if (!hasEntered) return;
     run ??= newRun();
     game.start();
+
+    if (mode === 'hunt') {
+      ensureSnakeLength(7);
+    }
+
     runClock();
   }
 
@@ -364,9 +406,16 @@ function getSegmentAssetAndAngle(snake, index, direction) {
   elements['overlay-action'].addEventListener('click', () => {
     if (game.status === 'ready') startReady();
     else if (game.status === 'paused') togglePause();
-    else if (game.status === 'levelcomplete') { game.nextLevel(); render(); }
+    else if (game.status === 'levelcomplete') { 
+      game.nextLevel(); 
+      if (mode === 'hunt') {
+        ensureSnakeLength(7);
+      }
+      render(); 
+    }
     else restart();
   });
+
   elements.restart.addEventListener('click', restart);
   elements.pause.addEventListener('click', togglePause);
 
@@ -459,7 +508,7 @@ function getSegmentAssetAndAngle(snake, index, direction) {
       stopClock();
       mode = document.querySelector('input[name="mode"]:checked').value;
       const huntRules = session.rules?.hunt?.levels?.length ? session.rules.hunt : globalThis.HuntRules;
-      game = mode === 'hunt' ? new HuntGame({ rules: huntRules }) : new ClassicGame();
+      game = mode === 'hunt' ? new HuntGame({ rules: huntRules, initialLength: 7 }) : new ClassicGame();
       run = null; hasEntered = true; lastUiState = ''; animFrame = 0;
       elements['player-display'].textContent = session.player.user?.username ?? 'Khách';
       elements['player-policy'].textContent = asGuest ? 'Khách không được lưu điểm.' : 'Có thể ghi danh khi điểm đủ cao.';
